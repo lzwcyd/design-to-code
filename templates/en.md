@@ -8,11 +8,11 @@
 **What I Need From You:** ...
 ```
 
-## Phase Confirmation Block (ALIGN / PLAN / TASK)
+## Phase Confirmation Block (ALIGN / PLAN / TASK / EXECUTION)
 
 ```markdown
 -------------------
-📌 Current Stage: [ALIGN | PLAN | TASK]
+📌 Current Stage: [ALIGN | PLAN | TASK | EXECUTION]
 
 Please confirm:
 1. ...
@@ -21,7 +21,27 @@ Please confirm:
 Reply with:
 - "Confirm" / "OK" / "Continue" -> move to next phase
 - Or provide revisions -> update this phase and reconfirm
+
+Constraint:
+- No next node or next code batch is allowed before confirmation
 -------------------
+```
+
+## Intermediate Artifact Gate Block
+
+```markdown
+Generated intermediate artifact: `{artifact_path}`
+
+Key updates:
+- {key_change_1}
+- {key_change_2}
+
+Open item(s):
+- {open_question_or_risk}
+
+Reply with:
+- "Confirm" / "Continue" to move to next node
+- "Revise: ..." to keep editing in current node and reconfirm
 ```
 
 ## Analysis Baseline Gate
@@ -53,6 +73,8 @@ Choose next step:
 1. Provide missing artifacts and continue
 2. Fall back to `{fallback_phase}`
 3. Continue with your summary as temporary baseline
+
+Note: start phase cannot bypass unconfirmed gates.
 ```
 
 ## Manual Edit Detected Block
@@ -75,4 +97,18 @@ Potentially stale downstream artifacts: {stale_artifacts}
 Choose:
 1. rebuild-from-align: regenerate from ALIGN
 2. continue-with-current-baseline: continue as-is (with acknowledged risk)
+```
+
+## Execution Step Gate Block
+
+```markdown
+Completed execution task: `{task_id}` `{task_name}`
+- Result: {success_or_fail}
+- Artifacts changed: {artifact_paths}
+- Notes/Risks: {notes}
+
+Please confirm next action:
+- "Continue" / "Confirm": execute next task
+- "Pause": stay at current state
+- "Back to TASK": return to task planning refinement
 ```

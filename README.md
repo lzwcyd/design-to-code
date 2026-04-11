@@ -13,6 +13,8 @@
 
 `ALIGN -> PLAN -> TASK -> EXECUTION`
 
+> 强制规则：每个阶段都要先产出中间文件并等待用户确认，未确认不得进入下一阶段。
+
 ## Main artifacts
 
 - `alignment.<lang>.md`

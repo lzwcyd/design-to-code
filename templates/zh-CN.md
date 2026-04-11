@@ -8,11 +8,11 @@
 **需要用户做什么：** ...
 ```
 
-## 阶段确认块（ALIGN / PLAN / TASK）
+## 阶段确认块（ALIGN / PLAN / TASK / EXECUTION）
 
 ```markdown
 -------------------
-📌 当前阶段：[ALIGN | PLAN | TASK]
+📌 当前阶段：[ALIGN | PLAN | TASK | EXECUTION]
 
 请确认以下内容：
 1. ...
@@ -21,7 +21,27 @@
 回复方式：
 - 「确认」/「OK」/「继续」-> 进入下一阶段
 - 直接提出修改意见 -> 当前阶段修订后再确认
+
+约束：
+- 未确认前不会进入下一节点，也不会执行下一批代码改动
 -------------------
+```
+
+## 中间产物确认块（Intermediate Artifact Gate）
+
+```markdown
+已生成中间产物：`{artifact_path}`
+
+关键内容摘要：
+- {key_change_1}
+- {key_change_2}
+
+待确认项：
+- {open_question_or_risk}
+
+请回复：
+- 「确认」/「继续」：进入下一节点
+- 「修改：...」：在当前节点修订后再次提交确认
 ```
 
 ## 系分基线确认块（Analysis Baseline Gate）
@@ -53,6 +73,8 @@
 1. 补齐缺失产物后继续
 2. 回退到 `{fallback_phase}`
 3. 使用你的摘要作为临时基线继续
+
+说明：即使指定了起始阶段，也不能绕过未确认节点。
 ```
 
 ## 检测到人工修改提示块
@@ -75,4 +97,18 @@
 请选择：
 1. rebuild-from-align：回到 ALIGN 重新生成
 2. continue-with-current-baseline：维持当前基线继续（需你确认风险）
+```
+
+## 执行步确认块（Execution Step Gate）
+
+```markdown
+已完成执行任务：`{task_id}` `{task_name}`
+- 执行结果：{success_or_fail}
+- 产物变更：{artifact_paths}
+- 风险/备注：{notes}
+
+请确认是否继续下一任务：
+- 「继续」/「确认」：执行下一任务
+- 「暂停」：停在当前状态，等待你进一步指令
+- 「回退到 TASK」：回到任务拆解修订
 ```

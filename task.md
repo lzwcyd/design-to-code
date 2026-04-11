@@ -10,6 +10,7 @@
 - 每条任务必须包含：输入、输出、依赖、`auto: Yes/No`、验收标准。
 - 任务顺序必须可直接用于 EXECUTION。
 - 若用户已手改 `dev-task.<lang>.md`，先走 `adopt/merge/regenerate`。
+- 写入 `dev-task.<lang>.md` 后必须等待用户确认，未确认不得进入 `EXECUTION`。
 
 ## Output
 
