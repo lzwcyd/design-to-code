@@ -1,0 +1,37 @@
+plan.md
+  a54058454d98339a 13
+README.md
+  a54058454d98339a 16-17
+execution.md
+  a54058454d98339a 10-11,13
+templates/en.md
+  a54058454d98339a 11,15,24-26,30-44,76-77,101-113
+task.md
+  a54058454d98339a 13
+analysis-ingest.md
+  a54058454d98339a 36-40
+templates/zh-CN.md
+  a54058454d98339a 11,15,24-26,30-44,76-77,101-113
+SKILL.md
+  a54058454d98339a 8,21,24-33,112,120-126,130-132,138,175-180,186-198,212-215,218,226,231,240,247,254,260-264,280-285,301-305,319
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.5",
+  "base_commit_sha": "654bf390cf1a3764fbca215e1cc82d81907eb1de",
+  "prompts": {
+    "a54058454d98339a": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "ae9fb345-b543-4185-a916-7ceb2336a3ea",
+        "model": "gpt-5.3-codex-xhigh-fast"
+      },
+      "human_author": "李志伟",
+      "messages": [],
+      "total_additions": 158,
+      "total_deletions": 31,
+      "accepted_lines": 158,
+      "overriden_lines": 0
+    }
+  }
+}
