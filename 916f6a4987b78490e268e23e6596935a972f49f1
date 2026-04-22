@@ -1,0 +1,23 @@
+SKILL.md
+  d7d61dc7fd99923e 3-17,324,326-365,367-392
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.5",
+  "base_commit_sha": "916f6a4987b78490e268e23e6596935a972f49f1",
+  "prompts": {
+    "d7d61dc7fd99923e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "f5065326-9d00-4254-b885-f6a6edbf9b54",
+        "model": "claude-opus-4-7-thinking-xhigh"
+      },
+      "human_author": "李志伟",
+      "messages": [],
+      "total_additions": 114,
+      "total_deletions": 41,
+      "accepted_lines": 84,
+      "overriden_lines": 0
+    }
+  }
+}
