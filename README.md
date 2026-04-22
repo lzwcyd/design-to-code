@@ -1,6 +1,8 @@
-# system-analysis-to-sdd-dev
+# design-to-code
 
-基于 `prd-to-system-analysis-skill` 产物推进 SDD 开发的 Skill。
+基于 `prd-to-design` 产物（系分文档）推进 SDD 开发到代码的 Skill。
+
+> 历史名：`system-analysis-to-sdd-dev`。新名 `design-to-code` 与并列两个 skill `prd-to-design`、`prd-to-code` 形成"输入→输出"对称命名。
 
 ## Typical input
 
