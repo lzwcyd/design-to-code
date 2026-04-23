@@ -29,7 +29,7 @@ description: >-
 - `analysis_plan_doc` (optional): 上游 `plan.<lang>.md` 路径
 - `analysis_review_doc` (optional): 上游 `review.<lang>.md` 路径
 - `repo_root` (optional): 代码仓路径，默认当前工作目录
-- `artifact_dir` (optional): 本 skill 开发产物基础目录（优先级最高）
+- `artifact_dir` (optional): 本 skill 开发产物基础目录（显式指定，优先级最高；缺省时按"系分产物目录 → 工作目录"回退，详见 Artifact directory 章节）
 - `session_id` (optional): 会话唯一 ID；未指定时优先使用运行时会话 ID
 - `lang` (optional): `zh-CN` | `en`（默认按用户本轮语言）
 - `start_phase` (optional): `AUTO` | `ALIGN` | `PLAN` | `TASK` | `EXECUTION`（默认 `AUTO`，仅用于恢复入口提示）
@@ -84,12 +84,18 @@ description: >-
 
 ## Artifact directory（开发产物落盘）
 
-先解析 `base_dir`，再拼接会话子目录：
+开发产物默认贴近上游系分产物或代码仓落盘，避免污染 skill 仓库自身。先解析 `base_dir`，再拼接会话子目录。
 
-1. `artifact_dir`（用户显式指定）
-2. `<analysis_artifact_root>/dev-sdd`（推荐默认）
-3. 环境变量 `SDD_ARTIFACT_DIR`
-4. skill 目录（`SKILL.md` 所在目录）
+`base_dir` 解析优先级（高 → 低）：
+
+1. **显式指定（最高）**
+   - 输入参数 `artifact_dir`（用户在调用时显式指定）
+   - 环境变量 `SDD_ARTIFACT_DIR`（全局显式配置）
+   - 二者同时存在时，`artifact_dir` 优先于环境变量
+2. **系分产物目录**：当 `analysis_artifact_root` 已提供（或可从 `analysis_state_path` 推导出）时，使用 `<analysis_artifact_root>/dev-sdd`
+3. **工作目录**：当系分产物目录未提供、仅传了零散的 `system_analysis_doc/analysis_plan_doc/analysis_review_doc` 时，使用 `repo_root`（未提供则为当前工作目录 `cwd`）
+
+禁止回退到 skill 自身目录（`SKILL.md` 所在目录），避免在 skill 仓库内堆积业务产物。
 
 `session_id` 解析顺序：
 
@@ -100,6 +106,8 @@ description: >-
 最终目录：
 
 - `artifact_root = <base_dir>/<session_id>`
+
+每轮进入 `INIT` 时必须把解析出的 `base_dir`、`base_dir_source`（来源：`artifact_dir` / `SDD_ARTIFACT_DIR` / `analysis_artifact_root` / `repo_root` / `cwd`）、`artifact_root` 显式回显给用户，便于人工核对。
 
 ### Mandatory artifacts
 
