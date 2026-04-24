@@ -10,7 +10,7 @@ description: >-
   按 SDD 节点逐步确认, OR references upstream analysis.state.<lang>.json /
   system-analysis.<lang>.md / review.<lang>.md, OR this skill's own
   alignment.<lang>.md / dev-plan.<lang>.md / dev-task.<lang>.md /
-  dev-execution.<lang>.md / dev.state.<lang>.json / dev-sdd, OR ALIGN 阶段,
+  dev-execution.<lang>.md / dev.state.<lang>.json / design-to-code 子目录, OR ALIGN 阶段,
   analysis_artifact_root. Do NOT trigger when only a PRD is available without
   any 系分 artifact — defer to prd-to-design or prd-to-code. Do NOT
   trigger for design-doc / PlantUML — defer to prd-to-design.
@@ -29,7 +29,7 @@ description: >-
 - `analysis_plan_doc` (optional): 上游 `plan.<lang>.md` 路径
 - `analysis_review_doc` (optional): 上游 `review.<lang>.md` 路径
 - `repo_root` (optional): 代码仓路径，默认当前工作目录
-- `artifact_dir` (optional): 本 skill 开发产物基础目录（显式指定，优先级最高；缺省时按"系分产物目录 → 工作目录"回退，详见 Artifact directory 章节）
+- `artifact_dir` (optional): 本 skill 开发产物基础目录（显式指定，优先级最高；缺省时按"系分产物目录 → 工作目录"回退，并自动追加 `design-to-code/` skill 子目录避免与其它 SDD skill 冲突，详见 Artifact directory 章节）
 - `session_id` (optional): 会话唯一 ID；未指定时优先使用运行时会话 ID
 - `lang` (optional): `zh-CN` | `en`（默认按用户本轮语言）
 - `start_phase` (optional): `AUTO` | `ALIGN` | `PLAN` | `TASK` | `EXECUTION`（默认 `AUTO`，仅用于恢复入口提示）
@@ -84,18 +84,33 @@ description: >-
 
 ## Artifact directory（开发产物落盘）
 
-开发产物默认贴近上游系分产物或代码仓落盘，避免污染 skill 仓库自身。先解析 `base_dir`，再拼接会话子目录。
+开发产物默认贴近上游系分产物或代码仓落盘，且强制隔离在以**当前 skill 名命名**的子目录下，避免与上游 `prd-to-design`、并列 `prd-to-code` 等 SDD skill 互相覆盖（这三个 skill 在同一目录下会出现 `plan/task/state` 等命名冲突）。
 
-`base_dir` 解析优先级（高 → 低）：
+> 兼容提示：旧版本曾使用 `<analysis_artifact_root>/dev-sdd/` 作为默认 base，现统一升级为 `<analysis_artifact_root>/design-to-code/`。如需复用旧产物，可显式传入 `artifact_dir=<analysis_artifact_root>/dev-sdd` 或迁移目录名。
 
-1. **显式指定（最高）**
+落盘路径分两步解析：先确定 `parent_dir`（上层目录），再按规则得到 `base_dir`，最后拼接 `session_id`。
+
+**Skill segment（本 skill 固定值）：** `design-to-code`
+
+### Step 1: `parent_dir` 解析优先级（高 → 低）
+
+1. **系分产物目录**：当 `analysis_artifact_root` 已提供（或可从 `analysis_state_path` 推导出）时，使用 `<analysis_artifact_root>`
+2. **工作目录**：当系分产物目录未提供、仅传了零散的 `system_analysis_doc/analysis_plan_doc/analysis_review_doc` 时，使用 `repo_root`（未提供则为当前工作目录 `cwd`）
+
+禁止回退到 skill 自身目录（`SKILL.md` 所在目录），避免在 skill 仓库内堆积业务产物。
+
+### Step 2: `base_dir` 解析
+
+1. **显式指定（最高优先级）** — 直接整体替换默认 `base_dir`，**不**自动追加 skill 名（视用户已自行决定路径布局）
    - 输入参数 `artifact_dir`（用户在调用时显式指定）
    - 环境变量 `SDD_ARTIFACT_DIR`（全局显式配置）
    - 二者同时存在时，`artifact_dir` 优先于环境变量
-2. **系分产物目录**：当 `analysis_artifact_root` 已提供（或可从 `analysis_state_path` 推导出）时，使用 `<analysis_artifact_root>/dev-sdd`
-3. **工作目录**：当系分产物目录未提供、仅传了零散的 `system_analysis_doc/analysis_plan_doc/analysis_review_doc` 时，使用 `repo_root`（未提供则为当前工作目录 `cwd`）
+   - 若用户显式指定的目录与上游 `prd-to-design` 的产物目录相同（即 `parent_dir` 本身），必须给出冲突告警并要求用户确认
+2. **默认（缺省）**：`base_dir = <parent_dir>/design-to-code`
+   - 若该路径不存在，需自动创建
+   - 若该路径已存在但属于另一 skill（含 `analysis.state.<lang>.json` / `sdd.state.<lang>.json` 等他 skill 独占产物），必须告警并要求用户决策
 
-禁止回退到 skill 自身目录（`SKILL.md` 所在目录），避免在 skill 仓库内堆积业务产物。
+### Step 3: `session_id` 与最终目录
 
 `session_id` 解析顺序：
 
@@ -107,7 +122,13 @@ description: >-
 
 - `artifact_root = <base_dir>/<session_id>`
 
-每轮进入 `INIT` 时必须把解析出的 `base_dir`、`base_dir_source`（来源：`artifact_dir` / `SDD_ARTIFACT_DIR` / `analysis_artifact_root` / `repo_root` / `cwd`）、`artifact_root` 显式回显给用户，便于人工核对。
+### Echo & audit（每轮 INIT 必须回显）
+
+每轮进入 `INIT` 时必须把以下字段显式回显给用户，便于人工核对：
+
+- `parent_dir`、`parent_dir_source`（来源：`analysis_artifact_root` / `repo_root` / `cwd`）
+- `base_dir`、`base_dir_source`（来源：`artifact_dir` / `SDD_ARTIFACT_DIR` / `default(<parent_dir>/design-to-code)`）
+- `artifact_root`
 
 ### Mandatory artifacts
 
@@ -346,7 +367,7 @@ Cursor 通过 frontmatter 的 `description` 决定是否激活本 skill。下表
 | 流程 | `系分文档开发`、`使用系分文档进行开发`、`根据系分文档写代码`、`按系统分析写代码`、`系统分析文档开发`、`从系分到代码`、`从系分进入 SDD`、`需求已拆好开始开发`、`按 SDD 节点逐步确认` |
 | 阶段 | `ALIGN`、`PLAN`、`TASK`、`EXECUTION`、`A B 方案`、`A/B 方案`、`auto: Yes`、`auto: No`、`节点闸门`、`逐任务确认`、`逐批确认` |
 | 上游输入（来自 #1） | `analysis.state.<lang>.json`、`system-analysis.<lang>.md`、`review.<lang>.md`、`plan.<lang>.md`（上游 PLAN）、`current-state.<lang>.md`、`split.<lang>.md` |
-| **本 skill 独占产物** | `alignment.<lang>.md`、`dev-plan.<lang>.md`、`dev-task.<lang>.md`、`dev-execution.<lang>.md`、`dev.state.<lang>.json`、`dev-sdd` 目录 |
+| **本 skill 独占产物** | `alignment.<lang>.md`、`dev-plan.<lang>.md`、`dev-task.<lang>.md`、`dev-execution.<lang>.md`、`dev.state.<lang>.json`、`design-to-code/` 目录（默认 base_dir） |
 | 参数 | `analysis_artifact_root`、`analysis_state_path`、`system_analysis_doc`、`analysis_plan_doc`、`analysis_review_doc`、`repo_root`、`start_phase`、`manual_edit_mode`、`session_id`、`artifact_dir` |
 | 操作 | `继续历史` / `resume`、`restart`、`adopt` / `merge` / `regenerate`、`上游系分变更`、`rebuild-from-align`、`continue-with-current-baseline` |
 
