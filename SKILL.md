@@ -1,23 +1,14 @@
 ---
 name: design-to-code
 description: >-
-  Develops code from an EXISTING 系分文档 (produced by prd-to-design) via
-  strict gated SDD flow CONTEXT_SCAN → ALIGN → PLAN → TASK → EXECUTION; bilingual
-  (zh-CN/en), resumable, manual-edit takeover, upstream-analysis rollback,
-  per-step EXECUTION confirmation. REQUIRES at least one upstream 系分 artifact.
-  CONTEXT_SCAN reads code repo (no PRD-scope dep), then ALIGN consumes upstream
-  系分 and maps requirements to modules. Use when the user mentions
-  系分文档开发 / 根据系分文档写代码 / 按系统分析写代码 / 系统分析文档开发 /
-  从系分到代码 / 从系分进入 SDD / 需求已拆好开始开发 / 按 SDD 节点逐步确认 /
-  工程画像 / 工程现状 / 仓库摸底 / CONTEXT_SCAN / context.<lang>.md /
-  两层现状, OR references upstream analysis.state.<lang>.json /
-  system-analysis.<lang>.md / review.<lang>.md, OR this skill's own
-  context.<lang>.md / alignment.<lang>.md / dev-plan.<lang>.md /
-  dev-task.<lang>.md / dev-execution.<lang>.md / dev.state.<lang>.json /
-  design-to-code 子目录, OR ALIGN 阶段, analysis_artifact_root.
-  Do NOT trigger when only a PRD is available without any 系分 artifact — defer
-  to prd-to-design or prd-to-code. Do NOT trigger for design-doc / PlantUML —
-  defer to prd-to-design. On ambiguity, ask A=系分 / B=直接代码 / C=已有系分写代码.
+  Develop code from an existing 系分文档 / system analysis artifact through the
+  gated SDD flow CONTEXT_SCAN -> ALIGN -> PLAN -> TASK -> EXECUTION. Use when
+  the user has upstream design artifacts such as analysis.state, system-analysis,
+  review, plan, alignment, dev-plan, or asks 根据系分文档写代码、按系统分析写代码、
+  从系分到代码、需求已拆好开始开发、按 SDD 节点逐步确认、工程画像、工程现状、
+  仓库摸底. Do not use when only a PRD is available or when the user wants
+  design docs / PlantUML; ask to choose 系分, 直接代码, or 已有系分写代码 when
+  intent is ambiguous.
 ---
 
 # System Analysis to SDD Dev（系分产物驱动开发）
